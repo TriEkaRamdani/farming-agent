@@ -1,34 +1,38 @@
 name: Farming Intelligence Agent
 
 on:
+  workflow_dispatch:
   schedule:
-    - cron: "0 2 * * *"   # Runs daily at 02:00 UTC
-  workflow_dispatch:      # Allows manual execution
+    - cron: "0 2 * * *"
+
+permissions:
+  contents: write
 
 jobs:
-  farming-agent:
+  run-agent:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Generate farming report
+      - name: Create report
         run: |
-          FILE="reports/$(date +%F).md"
+          mkdir -p reports
+          DATE=$(date +'%Y-%m-%d')
+          echo "# Farming Intelligence Report ($DATE)" > reports/$DATE.md
+          echo "" >> reports/$DATE.md
+          echo "## Opportunities" >> reports/$DATE.md
+          echo "- Monitor new airdrops" >> reports/$DATE.md
+          echo "- Check high APY farms" >> reports/$DATE.md
+          echo "" >> reports/$DATE.md
+          echo "## Action" >> reports/$DATE.md
+          echo "- Research before funding" >> reports/$DATE.md
 
-          echo "# Daily Farming Intelligence Report" > $FILE
-          echo "" >> $FILE
-          echo "Date: $(date)" >> $FILE
-          echo "" >> $FILE
-          echo "Agent Prompt:" >> $FILE
-          echo "--------------" >> $FILE
-          cat prompts/farming-intel.txt >> $FILE
-
-      - name: Commit and push report
+      - name: Commit report
         run: |
-          git config user.name "farming-agent-bot"
+          git config user.name "farming-agent"
           git config user.email "agent@github.com"
-          git add reports/
-          git commit -m "Add daily farming intelligence report"
+          git add reports
+          git commit -m "Daily farming intelligence"
           git push
