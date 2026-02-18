@@ -1,0 +1,34 @@
+name: Farming Intelligence Agent
+
+on:
+  schedule:
+    - cron: "0 2 * * *"   # Runs daily at 02:00 UTC
+  workflow_dispatch:      # Allows manual execution
+
+jobs:
+  farming-agent:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate farming report
+        run: |
+          FILE="reports/$(date +%F).md"
+
+          echo "# Daily Farming Intelligence Report" > $FILE
+          echo "" >> $FILE
+          echo "Date: $(date)" >> $FILE
+          echo "" >> $FILE
+          echo "Agent Prompt:" >> $FILE
+          echo "--------------" >> $FILE
+          cat prompts/farming-intel.txt >> $FILE
+
+      - name: Commit and push report
+        run: |
+          git config user.name "farming-agent-bot"
+          git config user.email "agent@github.com"
+          git add reports/
+          git commit -m "Add daily farming intelligence report"
+          git push
